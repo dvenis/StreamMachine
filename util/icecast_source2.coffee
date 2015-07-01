@@ -1,4 +1,4 @@
-IcecastSource = require "../src/streammachine/util/icecast_playlist_source"
+IcecastSource = require "../src/streammachine/util/icecast_source"
 
 path = require "path"
 fs = require "fs"

@@ -15,29 +15,21 @@ module.exports = class IcecastSource extends require("events").EventEmitter
         @playlistPath = @opts.filePath
         @generatePlaylist()
 
+        @currentSong = 0
         @startCurrentSong()
-
-        # we'll use FileSource to read the file and chunk it for us
-        # @fsource = new FileSource format:@opts.format, filePath:@opts.filePath, chunkDuration:0.2
-        #
-        # @fsource.on "data", (chunk) =>
-        #     @sock?.write chunk.data
 
     #----------
 
     startCurrentSong: ->
-      # if @fsource
-      #   @fsource.stop()
 
       filePath = @songs[@currentSong]
-      console.log "PS: playing #{filePath}"
-      @fsource = new FileSource format:@opts.format, filePath:filePath, chunkDuration:0.2
+      console.log "PS: starting to stream #{filePath}"
+      @fsource = new FileSource format:@opts.format, filePath:filePath, chunkDuration:0.2, shouldLoop:false
 
       @fsource.on "data", (chunk) =>
           @sock?.write chunk.data
 
       @fsource.on "done", =>
-        console.log "PS: got done song, moving to next song"
         @currentSong += 1
         @currentSong = 0 if @currentSong >= @songs.length
         @startCurrentSong()
@@ -49,7 +41,6 @@ module.exports = class IcecastSource extends require("events").EventEmitter
     generatePlaylist: ->
       playlist = fs.readFileSync @playlistPath, 'utf8'
       @songs = (x.replace("\r", "") for x in playlist.split("\n"))
-      @currentSong = 0
 
     #----------
 

@@ -1,8 +1,9 @@
 fs = require "fs"
 _ = require "underscore"
 
-# FileSource emulates a stream source by reading a local audio file in a
-# loop at the correct audio speed.
+# FileSource emulates a stream source by reading a local audio file. The shouldLoop
+# option can be set to cause the file to loop. Otherwise, the stream will
+# automatically stop and disconnect at the end of the song.
 
 module.exports = class FileSource extends require("./base")
     TYPE: -> "File (#{@opts.filePath})"
@@ -11,6 +12,7 @@ module.exports = class FileSource extends require("./base")
         super()
 
         @connected = false
+        @looping = @opts.shouldLoop
 
         @_file = null
 
@@ -82,14 +84,15 @@ module.exports = class FileSource extends require("./base")
     #----------
 
     _emitOnce: (ts=null) ->
-        if @_emit_pos >= @_chunks.length and @_chunks.length > 0
-          console.log "FS: finished reading... closing connection"
+        #if the audio file should be looped and we're at the end of all the chunks
+        if @looping is false and @_emit_pos >= @_chunks.length and @_chunks.length > 0
           @emit "done",
             ts:         new Date(ts)
             streamKey:  @streamKey
             uuid:       @uuid
           @stop()
           @disconnect()
+          return
 
         @_emit_pos = 0 if @_emit_pos >= @_chunks.length
 

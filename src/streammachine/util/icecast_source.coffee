@@ -9,7 +9,7 @@ module.exports = class IcecastSource extends require("events").EventEmitter
         @sock = null
 
         # we'll use FileSource to read the file and chunk it for us
-        @fsource = new FileSource format:@opts.format, filePath:@opts.filePath, chunkDuration:0.2
+        @fsource = new FileSource format:@opts.format, filePath:@opts.filePath, chunkDuration:0.2, shouldLoop:true
 
         @fsource.on "data", (chunk) =>
             @sock?.write chunk.data

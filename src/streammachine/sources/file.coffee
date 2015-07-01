@@ -82,6 +82,15 @@ module.exports = class FileSource extends require("./base")
     #----------
 
     _emitOnce: (ts=null) ->
+        if @_emit_pos >= @_chunks.length and @_chunks.length > 0
+          console.log "FS: finished reading... closing connection"
+          @emit "done",
+            ts:         new Date(ts)
+            streamKey:  @streamKey
+            uuid:       @uuid
+          @stop()
+          @disconnect()
+
         @_emit_pos = 0 if @_emit_pos >= @_chunks.length
 
         chunk = @_chunks[ @_emit_pos ]

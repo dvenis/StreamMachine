@@ -281,7 +281,11 @@ module.exports = class MP3 extends require("stream").Writable
         id3 = {}
 
         _stripNull = (buf) ->
-            idx = buf.toJSON().indexOf(0)
+            json = buf.toJSON()
+            if json.data
+              idx = json.data.indexOf(0)
+            else
+              idx = json.indexOf(0)
             buf.toString "ascii", 0, if idx == -1 then buf.length else idx
 
         # TAG: 3 bytes

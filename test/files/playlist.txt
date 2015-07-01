@@ -1,5 +1,8 @@
+
+something that doesn't actually exist...mp3
 test/files/mp3/mp3-22050-64-s.mp3
 test/files/mp3/mp3-44100-64-m.mp3
 test/files/mp3/mp3-44100-64-s.mp3
 test/files/mp3/mp3-44100-128-m.mp3
 test/files/mp3/tone1kHz-44100-128-m.mp3
+test/not existing file.mp3

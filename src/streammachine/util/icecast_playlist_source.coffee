@@ -1,6 +1,7 @@
 FileSource = require "../sources/file"
 fs = require "fs"
 net = require "net"
+path = require "path"
 
 debug = require("debug")("sm:IcecastSource")
 
@@ -23,24 +24,33 @@ module.exports = class IcecastSource extends require("events").EventEmitter
     startCurrentSong: ->
 
       filePath = @songs[@currentSong]
-      console.log "PS: starting to stream #{filePath}"
-      @fsource = new FileSource format:@opts.format, filePath:filePath, chunkDuration:0.2, shouldLoop:false
+      filePath = path.resolve(filePath)
 
-      @fsource.on "data", (chunk) =>
+      if !fs.existsSync(filePath)
+        console.log "PS: could not find file #{filePath}"
+        @nextSong()
+      else
+        console.log "PS: starting to stream #{filePath}"
+        @fsource = new FileSource format:@opts.format, filePath:filePath, chunkDuration:0.2, shouldLoop:false
+
+        @fsource.on "data", (chunk) =>
           @sock?.write chunk.data
 
-      @fsource.on "done", =>
-        @currentSong += 1
-        @currentSong = 0 if @currentSong >= @songs.length
-        @startCurrentSong()
+        @fsource.on "done", =>
+          @nextSong()
 
 
-
+    nextSong: ->
+      @currentSong += 1
+      @currentSong = 0 if @currentSong >= @songs.length
+      @startCurrentSong()
 
 
     generatePlaylist: ->
       playlist = fs.readFileSync @playlistPath, 'utf8'
       @songs = (x.replace("\r", "") for x in playlist.split("\n"))
+      #remove any songs that are empty
+      @songs = @songs.filter (song) -> song.replace /^\s+|\s+$/g, "".length isnt 0
 
     #----------
 

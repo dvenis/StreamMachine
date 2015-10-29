@@ -51,6 +51,16 @@ module.exports = class IcecastSource extends require("events").EventEmitter
       @songs = (x.replace("\r", "") for x in playlist.split("\n"))
       #remove any songs that are empty
       @songs = @songs.filter (song) -> song.replace /^\s+|\s+$/g, "".length isnt 0
+      @songs = shuffleArray @songs
+
+    shuffleArray = (arr) ->
+      i = arr.length
+      while --i > 0
+        j = ~~(Math.random() * (i + 1))
+        temp = arr[j]
+        arr[j] = arr[i]
+        arr[i] = temp
+      arr
 
     #----------
 
